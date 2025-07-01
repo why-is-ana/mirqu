@@ -284,7 +284,7 @@ img {
    HERO / ARTICLE  (sin cambios estructurales)
    ========================================= */
 article {
-    background: url("img/portada.jpg") center / cover no-repeat;
+    background: url("/img/portada.jpg") center / cover no-repeat;
     position: relative;
     display: flex;
     flex-direction: column;
