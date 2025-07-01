@@ -1,0 +1,1703 @@
+/* ===================================================================== */
+/*  0.  RESET SUAVE & VARIABLES                                          */
+/* ===================================================================== */
+:root {
+    /*  Paleta de la barra de navegación  -------------------------------- */
+    --clr-nav-bg: #0f1115;
+    /* fondo oscuro de la barra              */
+    --clr-nav-fg: #ffffff;
+    /* texto, íconos                         */
+    --clr-accent: #1e90ff;
+    /* color para enlaces u hover opcional   */
+    --nav-h: 64px;
+    /* altura de la barra                    */
+    /*  Tipografía                                                         */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, "Helvetica Neue", Arial, sans-serif;
+
+
+    /* Tono naranja corporativo para reutilizarlo en más lugares */
+    --clr-btn1: #d83933;
+    /* Naranja “botón” */
+    --overlay-strength: 0.80;
+    /* Opacidad del oscurecedor */
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===================================================================== */
+/*  1.  ESTILOS GENERALES (fuera de la barra)                            */
+/* ===================================================================== */
+body {
+    min-height: 100vh;
+    background: #ffffff;
+    color: #1d1d1d;
+    line-height: 1.5;
+    padding-top: var(--nav-h);
+}
+
+a {
+    color: var(--clr-accent);
+    text-decoration: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ===================================================================== */
+/*  2.  BARRA DE NAVEGACIÓN — DESKTOP FIRST                              */
+/* ===================================================================== */
+.main-nav {
+    position: fixed;
+    width: 100%;
+    max-width: 100vw;
+    /* impide crecer más de pantalla           */
+    height: var(--nav-h);
+    line-height: var(--nav-h);
+    background: var(--clr-nav-bg);
+    color: var(--clr-nav-fg);
+    z-index: 1000;
+    top: 0;
+}
+
+/* ---------- 2.1  "Hamburguesa" (nueva implementación) --------------- */
+.nav-toggle {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 22px;
+    width: 22px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.nav-toggle .bar {
+    height: 3px;
+    width: 100%;
+    background-color: var(--clr-nav-fg);
+    transition: all 100ms ease-in-out;
+    border-radius: 2px;
+}
+
+/* Animación de hamburguesa a X */
+.nav-toggle .bar.x:nth-of-type(1) {
+    transition: all 100ms ease-in-out;
+    transform: rotate(45deg);
+    transform-origin: top left;
+    width: 28px;
+}
+
+.nav-toggle .bar.x:nth-of-type(2) {
+    transition: all 100ms ease-in-out;
+    transform-origin: center;
+    width: 0;
+}
+
+.nav-toggle .bar.x:nth-of-type(3) {
+    transition: all 100ms ease-in-out;
+    transform: rotate(-45deg);
+    transform-origin: bottom left;
+    width: 28px;
+}
+
+/* ---------- 2.2  Lista principal ---------- */
+.nav-list {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0 1rem;
+    /* ajustado para el nuevo toggle            */
+    list-style: none;
+}
+
+/*  "Explorar" pegado a la izquierda; resto a la derecha                */
+.nav-list>li:first-child {
+    margin-right: auto;
+}
+
+/* ---------- 2.3  Elementos de 1er nivel ---------- */
+.nav-item {
+    position: relative;
+    padding: 0 1rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Enlaces de primer nivel (si luego los conviertes en <a>) */
+.nav-item>a,
+.nav-item>span {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ---------- 2.4  Sub‑menús ocultos por defecto ---------------------- */
+.submenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 300px;
+    background: var(--clr-nav-bg);
+    color: var(--clr-nav-fg);
+    border: 1px solid var(--clr-nav-bg);
+    border-radius: 0 0 .3rem .3rem;
+    list-style: none;
+    padding: 0 1rem;
+    opacity: 0;
+    visibility: hidden;
+    max-height: 0;
+    transform: translateY(8px);
+    transition: .25s ease;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.submenu li {
+    box-sizing: border-box;
+    max-height: 3.123rem;
+    display: flex;
+    align-items: center;
+}
+
+.submenu li:hover {
+    color: #f4d03f;
+}
+
+/* Se muestran SOLO cuando el <li> tiene .open (se añade con JS) */
+.nav-item.open>.submenu {
+    opacity: 1;
+    visibility: visible;
+    max-height: 800px;
+    /* "auto" animable                          */
+    transform: translateY(0);
+}
+
+/* Evita desborde de los dos últimos sub‑menús hacia la derecha */
+@media (min-width:769px) {
+    .nav-item:nth-last-child(-n+2)>.submenu {
+        left: auto;
+        right: 0;
+    }
+}
+
+/* ===================================================================== */
+/*  3.  ADAPTACIÓN A MÓVILES (≤ 768 px)                                   */
+/* ===================================================================== */
+@media (max-width:768px) {
+
+    /* 3.1  Mostrar el toggle de hamburguesa ---------------------------- */
+    .nav-toggle {
+        display: flex;
+    }
+
+    /* 3.2  La barra actúa como botón para abrir/cerrar el menú --------- */
+    .main-nav {
+        cursor: default;
+    }
+
+    /* 3.3  El UL se convierte en overlay pantalla completa ------------- */
+    .nav-list {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        gap: 0;
+        padding: calc(var(--nav-h) + 1rem) 2rem 2rem;
+        position: fixed;
+        inset: 0;
+        background: var(--clr-nav-bg);
+        transform: translateX(-100%);
+        transition: .3s ease-in-out;
+        overflow-y: auto;
+    }
+
+    /* 3.4  Al abrir la barra (.open) el UL se desliza ------------------ */
+    .main-nav.open .nav-list {
+        transform: translateX(0);
+    }
+
+    /* 3.5  Ítems de primer nivel ocupan todo el ancho ------------------ */
+    .nav-item {
+        width: 100%;
+        padding: .75rem 0;
+    }
+
+    /* 3.6  Sub‑menús estilo accordion ---------------------------------- */
+    .submenu {
+        position: static;
+        border: none;
+        background: transparent;
+        padding: 0;
+        transform: none;
+        padding: 0 2rem;
+    }
+}
+
+/* ===================================================================== */
+/*  4.  ACCESIBILIDAD Y COMPATIBILIDAD                                   */
+/* ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+    }
+
+}
+
+@supports (-webkit-appearance:none) and (not (appearance:none)) {
+    .nav-list {
+        display: -webkit-box;
+    }
+}
+
+
+
+/*------- COPIAMOS DESDE AQUI -------------------*/
+
+/* =========================================
+   VARIABLES GLOBALES
+   (las usamos para el botón y facilitan cambios posteriores)
+   ========================================= */
+:root {
+    /* Rango adaptable del padding vertical y horizontal del botón   *
+   *  – min    : 0.75 rem / 1.5 rem                                *
+   *  – preferido: función de la anchura de la ventana             *
+   *  – máx    : 1.5 rem / 4 rem                                   */
+    --btn-pad-y: clamp(1rem, 1.2vw + 0.5rem, 1.5rem);
+    --btn-pad-x: clamp(2rem, 3vw + 1rem, 4rem);
+}
+
+/* =========================================
+   HERO / ARTICLE  (sin cambios estructurales)
+   ========================================= */
+article {
+    background: url("/img/portada.jpg") center / cover no-repeat;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4rem 2rem;
+    color: #fff;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, .6);
+    overflow: hidden;
+}
+
+article::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, var(--overlay-strength));
+    mix-blend-mode: multiply;
+    pointer-events: none;
+}
+
+article>* {
+    /* Garantiza que todo quede por encima del overlay */
+    position: relative;
+    z-index: 1;
+}
+
+/* =========================================
+   TIPOGRAFÍA
+   ========================================= */
+article h1 {
+    font-size: clamp(2rem, 4vw + 2.5rem, 8rem);
+    margin-bottom: 1rem;
+    line-height: 1;
+}
+
+
+article p {
+    font-size: 1.7rem;
+    max-width: 60ch;
+}
+
+/* Primer párrafo (“Te enseñamos a como elaborarlo”) → negrita total           */
+article p:first-of-type {
+    font-weight: 700;
+}
+
+/* Resto de párrafos → ligero aumento de grosor + caja semitransparente negra */
+article p:not(:first-of-type) {
+    font-weight: 300;
+    /* “un poco más de grosor”      */
+    border-radius: .25rem;
+    margin-bottom: 1rem;
+    /* conserva separación vertical */
+}
+
+/* =========================================
+   BOTÓN PRINCIPAL
+   ========================================= */
+.buttonPrincipal {
+    background: var(--clr-btn1);
+    color: #fff;
+    border: none;
+    padding: var(--btn-pad-y) var(--btn-pad-x);
+    /* <<< responsive padding >>>   */
+    border-radius: .5rem;
+    font-size: clamp(1.5rem, 2vw + .8rem, 2rem);
+    /* escala ligera con viewport   */
+    cursor: pointer;
+    transition: background .3s ease;
+    margin: .5rem 0;
+}
+
+.buttonPrincipal:hover,
+.buttonPrincipal:focus-visible {
+    background: #b82f29;
+}
+
+.buttonPrincipal:focus-visible {
+    outline: 4px solid #fff;
+    outline-offset: 2px;
+}
+
+/* =========================================
+   RESPONSIVE / ACCESIBILIDAD EXTRA
+   ========================================= */
+@media (max-width: 800px) {
+    article p {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    article {
+        padding: 3rem 1.25rem;
+        display: block;
+    }
+
+    article h1 {
+        font-size: 3rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .buttonPrincipal {
+        transition: none;
+    }
+}
+
+
+
+
+/*=======================================================
+  ===___COPIAR DESDE PARA EL ARTICLE__________________===
+  =======================================================*/
+
+
+:root {
+    --gap: .5rem;
+    /* separaciones generales     */
+    --clr-bg-card: #ffffff10;
+    /* sutil fondo translúcido    */
+    --img-size: 10rem;
+    /* tamaño base de los círculos*/
+}
+
+/* Evita que las imágenes se estiren fuera de su caja */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ==========================================================
+   2. LAYOUT DEL <section>
+   ========================================================== */
+.presentacion {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* 3 columnas iguales (PC)  */
+    gap: var(--gap);
+    margin-inline: auto;
+    max-width: 1200px;
+    /* ancho máximo legible       */
+    padding: 2rem 1rem;
+}
+
+/* --- 2.1 Primer DIV: ocupa 100 % del ancho ----------------- */
+.presentacion>div:first-child {
+    grid-column: 1 / -1;
+    /* se expande de la 1ª a la última columna */
+    display: flex;
+    /* centrado perfecto */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-weight: 700;
+    /* todo en negrita */
+    padding: 4rem 2rem;
+}
+
+.presentacion>div:first-child h2 {
+    font-size: clamp(2.4rem, 4vw + 1rem, 3.6rem);
+    /* ≈ 2× p */
+    margin-bottom: .5rem;
+    line-height: 1;
+}
+
+.presentacion>div:first-child p {
+    font-size: clamp(1.1rem, 2vw + .5rem, 1.75rem);
+    font-weight: 500;
+}
+
+/* --- 2.2 Tarjetas con imagen + texto ---------------------- */
+.presentacion>div:not(:first-child) {
+    display: flex;
+    flex-direction: column;
+    /* imagen arriba, texto abajo */
+    align-items: center;
+    text-align: center;
+    padding: .5rem;
+    background: var(--clr-bg-card);
+    font-weight: 600;
+    /* “un poco más de grosor” */
+    backdrop-filter: blur(2px);
+    /* suave efecto glassmorfismo (opcional) */
+}
+
+.presentacion>div:not(:first-child) p {
+    display: block;
+    font-size: 1.3rem;
+    line-height: 1;
+    font-weight: 500;
+    max-width: 30ch;
+}
+
+/* Imagen redonda (círculo perfecto) */
+.presentacion figure {
+    margin: 0 0 1rem;
+}
+
+.presentacion img {
+    width: var(--img-size);
+    height: var(--img-size);
+    object-fit: cover;
+    border-radius: 50%;
+    /* círculo */
+    /* Prefijo por compatibilidad extra */
+    -webkit-border-radius: 50%;
+}
+
+/* ==========================================================
+   3. RESPONSIVE: TABLET & MÓVIL
+   ========================================================== */
+@media (max-width: 900px) {
+    .presentacion {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .presentacion {
+        grid-template-columns: 1fr;
+    }
+
+    /* todas en columna */
+    .presentacion>div:first-child {
+
+        padding: .5rem .5rem;
+    }
+
+    .presentacion>div:not(:first-child) {
+        --img-size: 8rem;
+        /* imágenes más pequeñas */
+    }
+
+    .presentacion>div:not(:first-child) p {
+        font-size: 1rem;
+    }
+}
+
+/* ==========================================================
+   4. ACCESIBILIDAD / DETALLES EXTRA
+   ========================================================== */
+/* Respeta la preferencia de reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+}
+
+/* Pequeño fallback para navegadores muy antiguos sin Grid
+   (IE 11): apila todo con Flexbox vertical. */
+@supports not (display: grid) {
+    .presentacion {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .presentacion>div {
+        flex: 1 1 100%;
+    }
+
+    .presentacion>div:not(:first-child) {
+        flex: 1 1 calc(33.333% - var(--gap));
+    }
+}
+
+
+
+
+
+
+/*========================================================
+===        CONSTRUCCION DEL SCROLL ======================
+========================================================== */
+
+.main-section {
+    max-width: 100vw;
+    margin: 0 auto;
+    min-height: 500px;
+    background: white;
+    overflow: hidden;
+    margin-top: 2rem;
+}
+
+/* Estilos para resolución de PC */
+@media (min-width: 768px) {
+    .main-section {
+        display: flex;
+        align-items: stretch;
+    }
+
+    .image-container {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+
+    }
+
+    .scroll-wrapper {
+        display: flex;
+        width: 400%;
+        height: 100%;
+        transition: transform 0.5s ease-in-out;
+    }
+
+    .scroll-wrapper figure {
+        width: 25%;
+        height: 100%;
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .scroll-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .scroll-controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        z-index: 10;
+    }
+
+    .botonScroll {
+        width: 18px;
+        height: 18px;
+        border-radius: 25%;
+        background: rgba(253, 231, 107, 0.5);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .botonScroll:hover {
+        background: rgba(255, 255, 255, 0.8);
+        transform: scale(1.2);
+    }
+
+    .botonScroll.active {
+        background: #fcf3cf;
+        border-color: #ffce47;
+        box-shadow: 0 0 10px rgba(255, 217, 0, 0.74);
+    }
+
+    .text-container {
+        /*contenedor del texto en modo escritorio*/
+        flex: 1;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: #f8f9f9;
+        color: #17202a;
+    }
+
+    .text-container p {
+        margin-bottom: 20px;
+        line-height: 1.6;
+        font-size: 1.2rem;
+        text-align: left;
+    }
+
+    .text-container a {
+        color: #1c2833;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .text-container a:hover {
+        color: #e74c3c;
+    }
+
+    /* Ocultar elementos mobile en desktop */
+    .mobile-background {
+        display: none;
+    }
+}
+
+/* Estilos para resolución móvil */
+@media (max-width: 767px) {
+    .main-section {
+        position: relative;
+        min-height: 400px;
+    }
+
+    .image-container {
+        display: none;
+    }
+
+    .mobile-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        transition: opacity 1s ease-in-out;
+    }
+
+    .mobile-background img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .mobile-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.88);
+        z-index: 2;
+    }
+
+    .text-container {
+        position: relative;
+        z-index: 3;
+        padding: 2rem 2rem;
+        color: white;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .text-container p {
+        margin-bottom: 15px;
+        line-height: 1.5;
+        font-size: 1rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .text-container a {
+        color: #ffd700;
+        text-decoration: none;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .text-container a:hover {
+        color: #ffed4e;
+        text-decoration: underline;
+    }
+}
+
+
+
+/*============================================================
+===== CAJA DE OPORTUNIDADES  =================================
+==============================================================*/
+/* Contenedor principal */
+.main-opportunities {
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 40px 80px;
+    /* Más padding horizontal en desktop */
+    border-radius: 12px;
+    box-sizing: border-box;
+    margin-top: 3rem;
+}
+
+/* Título principal */
+.main-opportunities h2 {
+    display: flex;
+    flex-direction: row;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 40px;
+    color:#17202a;
+    text-align: left;
+}
+
+/* Cada sección hija */
+.opportunity-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 30px 0;
+    border-bottom: 1px solid #85929e;
+    gap: 15px;
+}
+
+/* Contenedor para figura y h3 que siempre van juntos */
+.content-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+/* Remover border-bottom del último elemento */
+.opportunity-item:last-of-type {
+    border-bottom: none;
+}
+
+/* Contenedor de imagen */
+.opportunity-item figure {
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* Imágenes circulares */
+.opportunity-item img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.opportunity-item img:hover {
+    transform: scale(1.1);
+}
+
+/* Contenedor de título */
+.opportunity-item h3 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    color: #17202a;
+    text-align: left;
+}
+
+/* Contenedor de párrafo - alineado desde la izquierda como la figura */
+.opportunity-item p {
+    font-size: 1.2rem;
+    margin: 0;
+    color: #17202a;
+    text-align: left;
+    line-height: 1.7;
+    width: 100%;
+    margin-left: 0;
+    /* Cambiado: ahora empieza desde la izquierda como la figura */
+}
+
+/* Botón principal */
+.cta-button {
+    margin-top: 40px;
+    padding: 2rem 6rem;
+    background: #d83933;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: center;
+    letter-spacing: 0.5px;
+    display: block;
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.cta-button:active {
+    transform: translateY(0);
+}
+
+
+
+/* Media Queries para responsividad */
+
+/* Tablets grandes */
+@media (max-width: 1024px) {
+    .main-opportunities {
+        padding: 30px 50px;
+        /* Reducimos padding horizontal */
+    }
+
+    .main-opportunities h2 {
+        font-size: 2.2rem;
+        margin-bottom: 35px;
+    }
+
+    .opportunity-item {
+        padding: 25px 0;
+        gap: 12px;
+    }
+
+    .opportunity-item p {
+        margin-left: 0;
+        /* Adaptado: mantiene alineación desde la izquierda */
+    }
+}
+
+/* Punto de quiebre donde el párrafo baja automáticamente */
+@media (max-width: 768px) {
+    .main-opportunities {
+        padding: 25px;
+        /* Quitamos padding extra en tablets */
+    }
+
+    .main-opportunities h2 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
+
+    .opportunity-item {
+        padding: 20px 0;
+        gap: 12px;
+    }
+
+    .opportunity-item img {
+        width: 50px;
+        height: 50px;
+    }
+
+    .opportunity-item h3 {
+        font-size: 1.3rem;
+    }
+
+    .opportunity-item p {
+        font-size: 0.95rem;
+        margin-left: 0;
+        /* Adaptado: mantiene alineación desde la izquierda */
+    }
+
+    .content-header {
+        gap: 12px;
+    }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+    .main-opportunities {
+        padding: 20px;
+        /* Sin padding extra en móviles */
+    }
+
+    .main-opportunities h2 {
+        font-size: 1.8rem;
+        margin-bottom: 25px;
+    }
+
+    .opportunity-item {
+        padding: 18px 0;
+        gap: 10px;
+    }
+
+    .content-header {
+        gap: 10px;
+    }
+
+    .opportunity-item img {
+        width: 45px;
+        height: 45px;
+    }
+
+    .opportunity-item h3 {
+        font-size: 1.2rem;
+    }
+
+    .opportunity-item p {
+        font-size: 0.9rem;
+        margin-left: 0;
+        /* Adaptado: mantiene alineación desde la izquierda */
+    }
+
+    .cta-button {
+        padding: 14px 28px;
+        font-size: 1rem;
+        margin-top: 30px;
+    }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+    .main-opportunities h2 {
+        font-size: 1.6rem;
+    }
+
+    .opportunity-item h3 {
+        font-size: 1.1rem;
+    }
+
+    .opportunity-item img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .opportunity-item p {
+        margin-left: 0;
+        /* Adaptado: mantiene alineación desde la izquierda */
+    }
+}
+
+/* Soporte para navegadores antiguos */
+@supports not (display: flex) {
+    .main-opportunities {
+        display: block;
+    }
+
+    .opportunity-item {
+        display: block;
+        overflow: hidden;
+    }
+
+    .opportunity-item figure {
+        float: left;
+        margin-right: 20px;
+    }
+
+    .opportunity-item h3 {
+        display: inline-block;
+        margin-right: 20px;
+    }
+}
+
+
+/*===================================================
+=== BANNER DE PRESENTACION ==========================
+=====================================================*/
+
+/* Contenedor principal del banner */
+.hero-banner {
+    width: 100%;
+    margin: 0;
+    margin-top: 2rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Contenedor de la imagen */
+.banner-image {
+    width: 100vw; /* 100% del viewport width */
+    margin: 0;
+    padding: 0;
+    position: relative;
+
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
+
+/* Imagen que cubre todo el ancho */
+.banner-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    min-height: 300px; /* Altura mínima para mantener proporción */
+}
+
+/* Texto centrado debajo de la imagen */
+.banner-text {
+    max-width: 1200px;
+    width: 90%;
+    margin: 40px auto;
+    padding: 0 20px;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 400;
+    line-height: 1.8;
+    color: #17202a;
+    box-sizing: border-box;
+}
+
+/* Media Queries para responsividad */
+
+/* Tablets grandes */
+@media (max-width: 1024px) {
+    .banner-image img {
+        min-height: 250px;
+    }
+    
+    .banner-text {
+        font-size: 1.2rem;
+        margin: 35px auto;
+        width: 85%;
+    }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+    .banner-image img {
+        min-height: 200px;
+    }
+    
+    .banner-text {
+        font-size: 1.1rem;
+        margin: 30px auto;
+        width: 90%;
+        padding: 0 15px;
+        line-height: 1.7;
+    }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+    .banner-image img {
+        min-height: 160px;
+    }
+    
+    .banner-text {
+        font-size: 0.9rem;
+        margin: 25px auto;
+        width: 95%;
+        padding: 0 10px;
+        line-height: 1.6;
+    }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+    .banner-image img {
+        min-height: 150px;
+    }
+    
+    .banner-text {
+        font-size: 0.95rem;
+        margin: 20px auto;
+        padding: 0 8px;
+    }
+}
+
+/* Para pantallas muy anchas */
+@media (min-width: 1400px) {
+    .banner-image img {
+        min-height: 400px;
+    }
+    
+    .banner-text {
+        font-size: 1.4rem;
+        margin: 50px auto;
+    }
+}
+
+/*========================================================|
+==== DESARROLLADORES =====================================|
+==========================================================|*/
+
+/* Contenedor principal de la sección */
+.team-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+
+/* Título principal con borde inferior */
+.team-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #17202a;
+    text-align: left;
+    margin: 0 0 40px 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #85929e;
+    display: block;
+    width: 100%;
+}
+
+/* Contenedor de los miembros del equipo - SIEMPRE en una línea */
+.team-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 2%;
+    flex-wrap: nowrap; /* NUNCA permitir que se envuelvan */
+    width: 100%;
+}
+
+/* Cada miembro del equipo - siempre 3 en una línea */
+.team-member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1; /* Se distribuyen equitativamente */
+    max-width: 18%; /* Máximo 32% para que quepan 3 con gaps */
+    min-width: 0; /* Permite que se contraigan más si es necesario */
+}
+
+/* Contenedor de la foto */
+.member-photo {
+    margin: 0 0 15px 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Imágenes completamente redondas - tamaño adaptativo */
+.member-photo img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+    border: 3px solid #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.member-photo img:hover {
+    transform: scale(1.05);
+}
+
+/* Nombres de los miembros */
+.member-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #17202a;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+    text-align: center;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Roles/descripción - color más claro y tamaño menor */
+.member-role {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #5d6d7e;
+    text-transform: uppercase;
+    margin: 0;
+    line-height: 1.4;
+    text-align: center;
+    /*word-wrap: break-word;
+    hyphens: auto;*/
+}
+
+/* Media Queries para responsividad - SIEMPRE 3 en línea */
+
+/* Tablets grandes */
+@media (max-width: 1024px) {
+    .team-section {
+        padding: 35px 15px;
+    }
+    
+    .team-title {
+        font-size: 2rem;
+        margin-bottom: 35px;
+    }
+    
+    .member-photo img {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .member-name {
+        font-size: 1rem;
+    }
+    
+    .member-role {
+        font-size: 0.8rem;
+    }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+    .team-section {
+        padding: 30px 12px;
+    }
+    
+    .team-container {
+        gap: 1.5%;
+    }
+    
+    .team-member {
+        max-width: 32.5%;
+    }
+    
+    .team-title {
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+        padding-bottom: 12px;
+    }
+    
+    .member-photo img {
+        width: 85px;
+        height: 85px;
+    }
+    
+    .member-name {
+        font-size: 0.95rem;
+        line-height: 1.2;
+    }
+    
+    .member-role {
+        font-size: 0.7rem;
+        line-height: 1.3;
+    }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+    .team-section {
+        padding: 25px 8px;
+    }
+    
+    .team-container {
+        gap: 1%;
+    }
+    
+    .team-member {
+        max-width: 33%;
+        margin-bottom: 20px;
+    }
+    
+    .team-title {
+        font-size: 1.6rem;
+        margin-bottom: 25px;
+        padding-bottom: 10px;
+    }
+    
+    .member-photo {
+        margin-bottom: 10px;
+    }
+    
+    .member-photo img {
+        width: 70px;
+        height: 70px;
+        border-width: 2px;
+    }
+    
+    .member-name {
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+        line-height: 1.1;
+    }
+    
+    .member-role {
+        font-size: 0.5rem;
+        line-height: 1.2;
+    }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+    .team-section {
+        padding: 20px 5px;
+    }
+    
+    .team-container {
+        gap: 0.5%;
+    }
+    
+    .team-member {
+        max-width: 33.2%;
+    }
+    
+    .team-title {
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+    }
+    
+    .member-photo img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .member-name {
+        font-size: 0.75rem;
+        margin-bottom: 4px;
+        line-height: 1.1;
+    }
+    
+    .member-role {
+        font-size: 0.65rem;
+        line-height: 1.1;
+    }
+}
+
+/* Móviles extra pequeños */
+@media (max-width: 320px) {
+    .team-section {
+        padding: 18px 3px;
+    }
+    
+    .team-container {
+        gap: 0.3%;
+    }
+    
+    .member-photo img {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .member-name {
+        font-size: 0.7rem;
+    }
+    
+    .member-role {
+        font-size: 0.6rem;
+    }
+}
+
+/* Para pantallas muy anchas */
+@media (min-width: 1400px) {
+    .team-title {
+        font-size: 2.4rem;
+    }
+    
+    .member-photo img {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .member-name {
+        font-size: 1.3rem;
+    }
+    
+    .member-role {
+        font-size: 1rem;
+    }
+}
+
+
+/*===========================================
+=======   FOOTER ============================
+=============================================*/
+/* Footer principal */
+.site-footer {
+    background-color: #1c2833;
+    color: #f8f9fa;
+    padding: 40px 20px 30px;
+    margin-top: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+    box-sizing: border-box;
+    min-height: 200px;
+}
+
+/* Sección de marca/logo (izquierda) */
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1;
+    max-width: 400px;
+}
+
+/* Contenedor del logo */
+.footer-logo {
+    margin: 0 0 15px 0;
+    padding: 0;
+}
+
+/* Logo pequeño */
+.footer-logo img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Título del proyecto */
+.footer-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f8f9fa;
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+}
+
+/* Descripción del proyecto */
+.footer-description {
+    font-size: 1rem;
+    font-weight: 400;
+    color: #bdc3c7;
+    margin: 0;
+    line-height: 1.5;
+    text-align: left;
+}
+
+/* Sección de enlaces (derecha) */
+.footer-links {
+    display: flex;
+    gap: 50px;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: flex-start;
+}
+
+/* Listas de navegación */
+.footer-nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 200px;
+}
+
+/* Items de las listas */
+.footer-nav li {
+    margin: 0;
+    padding: 0;
+}
+
+/* Enlaces del footer */
+.footer-nav a {
+    color: #d5dbdb;
+    text-decoration: none;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+.footer-nav a:hover {
+    color: #f8f9fa;
+    text-decoration: underline;
+}
+
+/* Si no usas enlaces, estilo para li sin a */
+.footer-nav li:not(:has(a)) {
+    color: #d5dbdb;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.footer-nav li:not(:has(a)):hover {
+    color: #f8f9fa;
+}
+
+/* Media Queries para responsividad */
+
+/* Tablets grandes */
+@media (max-width: 1024px) {
+    .site-footer {
+        padding: 35px 15px 25px;
+        gap: 30px;
+    }
+    
+    .footer-links {
+        gap: 35px;
+    }
+    
+    .footer-nav {
+        min-width: 180px;
+    }
+    
+    .footer-title {
+        font-size: 1.4rem;
+    }
+    
+    .footer-description {
+        font-size: 0.95rem;
+    }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+    .site-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 30px 15px 20px;
+        gap: 30px;
+    }
+    
+    .footer-brand {
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .footer-links {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 40px;
+    }
+    
+    .footer-nav {
+        min-width: 160px;
+    }
+    
+    .footer-title {
+        font-size: 1.3rem;
+    }
+    
+    .footer-description {
+        font-size: 0.9rem;
+    }
+    
+    .footer-nav a,
+    .footer-nav li:not(:has(a)) {
+        font-size: 0.85rem;
+    }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+    .site-footer {
+        padding: 25px 10px 15px;
+        gap: 25px;
+    }
+    
+    .footer-logo img {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .footer-title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .footer-description {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .footer-links {
+        flex-direction: column;
+        gap: 25px;
+        width: 100%;
+    }
+    
+    .footer-nav {
+        min-width: auto;
+        width: 100%;
+        gap: 10px;
+    }
+    
+    .footer-nav a,
+    .footer-nav li:not(:has(a)) {
+        font-size: 0.8rem;
+    }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+    .site-footer {
+        padding: 20px 8px 12px;
+        gap: 20px;
+    }
+    
+    .footer-logo img {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .footer-title {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    
+    .footer-description {
+        font-size: 0.8rem;
+    }
+    
+    .footer-links {
+        gap: 20px;
+    }
+    
+    .footer-nav {
+        gap: 8px;
+    }
+    
+    .footer-nav a,
+    .footer-nav li:not(:has(a)) {
+        font-size: 0.75rem;
+    }
+}
+
+/* Para pantallas muy anchas */
+@media (min-width: 1400px) {
+    .site-footer {
+        padding: 50px 40px 35px;
+        gap: 60px;
+    }
+    
+    .footer-logo img {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .footer-title {
+        font-size: 1.6rem;
+    }
+    
+    .footer-description {
+        font-size: 1.1rem;
+    }
+    
+    .footer-links {
+        gap: 60px;
+    }
+    
+    .footer-nav {
+        min-width: 220px;
+        gap: 14px;
+    }
+    
+    .footer-nav a,
+    .footer-nav li:not(:has(a)) {
+        font-size: 0.95rem;
+    }
+}
